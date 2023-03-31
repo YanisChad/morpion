@@ -10,10 +10,27 @@ class Morpion:
 
     def jouer(self, ligne, colonne):
         self.joueur_actuel = "X"
+        if self.joueur_actuel == "X":
+            joueur = "X"
+            self.joueur_actuel = "O"
+        else:
+            joueur = "O"
+            self.joueur_actuel = "X"
+            
         if self.grille[ligne][colonne] == " ":
-            self.grille[ligne][colonne] = self.joueur_actuel
+            self.grille[ligne][colonne] = joueur
+            # Charger le fichier CSV existant s'il existe, sinon créer un nouveau DataFrame
+            if os.path.exists("coups.csv"):
+                df = pd.read_csv("coups.csv")
+            else:
+                df = pd.DataFrame(columns=["joueur", "ligne", "colonne"])
+            # Ajouter les coordonnées du coup joué au DataFrame
+            df = df.append({"joueur": joueur, "ligne": ligne, "colonne": colonne}, ignore_index=True)
+            # Exporter le DataFrame dans le fichier CSV
+            df.to_csv("coups.csv", index=False)
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
+        
             
     def est_gagne(self):
         # Vérification des lignes
