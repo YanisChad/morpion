@@ -4,19 +4,14 @@ import random
 
 class Morpion:
     def __init__(self):
-        self.joueur_actuel = "X"
         self.grille = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
-        
+
     def jouer(self, ligne, colonne):
+        self.joueur_actuel = "X"
         if self.grille[ligne][colonne] == " ":
             self.grille[ligne][colonne] = self.joueur_actuel
-            if self.joueur_actuel == "X":
-                self.joueur_actuel = "O"
-            else:
-                self.joueur_actuel = "X"
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
-
             
     def est_gagne(self):
         # Vérification des lignes
@@ -26,10 +21,10 @@ class Morpion:
         
         # Vérification des colonnes
         for colonne in range(3):
-            print(self.grille)
             if self.grille[0][colonne] == self.grille[1][colonne] == self.grille[2][colonne] != " ":
                 return True
-        
+        print(self.grille)
+
         # Vérification des diagonales
         if self.grille[0][0] == self.grille[1][1] == self.grille[2][2] != " ":
             return True
@@ -46,26 +41,40 @@ class Morpion:
         return True
 
 class Case(tk.Button):
-    def __init__(self, master, ligne, colonne, morpion):
+    def __init__(self, master, ligne, colonne, morpion, cases):
         super().__init__(master, text=" ", font=("Arial", 24), width=7, height=4, command=self.cliquer)
         self.ligne = ligne
         self.colonne = colonne
         self.morpion = morpion
-        
-    def cliquer(self):
-        self.morpion.jouer(self.ligne, self.colonne)
-        self.configure(text=self.morpion.grille[self.ligne][self.colonne])
-        if self.morpion.est_gagne():
-            if self.morpion.joueur_actuel == "X":
-                self.morpion.joueur_actuel = "O"
-            else:
-                self.morpion.joueur_actuel = "O"
-                self.morpion.joueur_actuel = "X"
-            messagebox.showinfo("Fin de partie", "Le joueur {} a gagné ! Clique sur replay pour rejouer".format(self.morpion.joueur_actuel))
-
-        elif self.morpion.est_plein():
-            messagebox.showinfo("Fin de partie", "Match nul !")
+        self.cases = cases
             
+            
+    def play_computer(self):
+        self.morpion.joueur_actuel = "O"
+        while True:
+            ligne = random.randint(0, 2)
+            colonne = random.randint(0, 2)
+            if self.morpion.grille[ligne][colonne] == " ":
+                break
+        self.morpion.grille[ligne][colonne] = self.morpion.joueur_actuel
+        if self.morpion.est_gagne():
+            messagebox.showinfo("Fin de partie", "Le joueur {} a gagné ! Clique sur replay pour rejouer".format(self.morpion.joueur_actuel))
+        self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
+        
+
+    def cliquer(self):
+        if self.morpion.grille[self.ligne][self.colonne] == " ":
+            self.morpion.jouer(self.ligne, self.colonne)
+            self.configure(text=self.morpion.grille[self.ligne][self.colonne])
+            if self.morpion.est_gagne():
+                messagebox.showinfo("Fin de partie", "Le joueur {} a gagné ! Clique sur replay pour rejouer".format(self.morpion.joueur_actuel))
+            elif self.morpion.est_plein():
+                messagebox.showinfo("Fin de partie", "Match nul !")
+            self.play_computer()
+        else:
+            messagebox.showwarning("Erreur", "Case déjà occupée")
+
+
 
 class Application(tk.Frame):
     def __init__(self, master):
@@ -84,7 +93,7 @@ class Application(tk.Frame):
     def creer_widgets(self):
         for ligne in range(3):
             for colonne in range(3):
-                case = Case(self, ligne, colonne, self.morpion)
+                case = Case(self, ligne, colonne, self.morpion, self.cases)
                 case.grid(row=ligne, column=colonne)
                 self.cases[ligne][colonne] = case
         self.replay = tk.Button(self.master, text="Rejouer", command=self.rejouer)
@@ -99,4 +108,4 @@ if __name__ == "__main__":
     jeu.pack()
     fenetre.mainloop()
 
-print(Morpion().grille)
+# print(Morpion().grille)
