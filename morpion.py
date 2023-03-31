@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
+import pandas as pd
 import random
+import os
 
 class Morpion:
     def __init__(self):
