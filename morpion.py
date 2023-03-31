@@ -58,9 +58,10 @@ class Case(tk.Button):
                 break
         self.morpion.grille[ligne][colonne] = self.morpion.joueur_actuel
         if self.morpion.est_gagne():
+            self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
             messagebox.showinfo("Fin de partie", "Le joueur {} a gagné ! Clique sur replay pour rejouer".format(self.morpion.joueur_actuel))
         self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
-        
+
 
     def cliquer(self):
         if self.morpion.grille[self.ligne][self.colonne] == " ":
