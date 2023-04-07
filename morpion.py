@@ -21,16 +21,19 @@ class Morpion:
             
         if self.grille[ligne][colonne] == " ":
             self.grille[ligne][colonne] = joueur
-            # Charger le fichier CSV existant s'il existe, sinon créer un nouveau DataFrame
             if os.path.exists("coups.csv"):
-                df = pd.read_csv("coups.csv")
-            else:
-                df = pd.DataFrame(columns=["joueur", "ligne", "colonne"])
-            df = df.append({"joueur": joueur, "ligne": ligne, "colonne": colonne}, ignore_index=True)
+                df = pd.read_csv("coups.csv", sep=';')
+            else :
+                df = pd.DataFrame(columns=["tour", "joueur", "ligne", "colonne"])
+            # Charger le fichier CSV existant s'il existe, sinon créer un nouveau DataFrame
             self.coups.append((self.tour, joueur, ligne, colonne))
+            
             # Ajouter les coordonnées du coup joué au DataFrame
             # Exporter le DataFrame dans le fichier CSV
-            df.to_csv("coups.csv", index=False)
+            df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne"])
+            #concat the two dataframes
+            result_df = pd.concat([df, df_temp])
+            result_df.to_csv("coups.csv", index=False, sep=';')
             self.tour += 1
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
