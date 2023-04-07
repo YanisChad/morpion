@@ -81,7 +81,8 @@ class Case(tk.Button):
         elif self.morpion.est_plein():
             self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
             messagebox.showinfo("Fin de partie", "Match nul !")
-        self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
+        else:
+            self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
         
 
     def cliquer(self):
