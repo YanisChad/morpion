@@ -24,6 +24,8 @@ class Morpion:
                 df = pd.read_csv("coups.csv")
             else:
                 df = pd.DataFrame(columns=["joueur", "ligne", "colonne"])
+            df = df.append({"joueur": joueur, "ligne": ligne, "colonne": colonne}, ignore_index=True)
+
             # Ajouter les coordonnées du coup joué au DataFrame
             # Exporter le DataFrame dans le fichier CSV
             df.to_csv("coups.csv", index=False)
