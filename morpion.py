@@ -7,6 +7,8 @@ import os
 class Morpion:
     def __init__(self):
         self.grille = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
+        self.coups = []
+        self.tour = 0
 
     def jouer(self, ligne, colonne):
         self.joueur_actuel = "X"
@@ -25,10 +27,11 @@ class Morpion:
             else:
                 df = pd.DataFrame(columns=["joueur", "ligne", "colonne"])
             df = df.append({"joueur": joueur, "ligne": ligne, "colonne": colonne}, ignore_index=True)
-
+            self.coups.append((self.tour, joueur, ligne, colonne))
             # Ajouter les coordonnées du coup joué au DataFrame
             # Exporter le DataFrame dans le fichier CSV
             df.to_csv("coups.csv", index=False)
+            self.tour += 1
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
         
@@ -85,6 +88,9 @@ class Case(tk.Button):
             messagebox.showinfo("Fin de partie", "Match nul !")
         else:
             self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
+            self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, ligne, colonne))
+            self.morpion.tour += 1
+
         
 
     def cliquer(self):
@@ -94,14 +100,13 @@ class Case(tk.Button):
             self.configure(text=self.morpion.grille[self.ligne][self.colonne])
             if self.morpion.est_gagne():
                 messagebox.showinfo("Fin de partie", "Le joueur x a gagné ! Clique sur replay pour rejouer")
+                print(self.morpion.coups)
             elif self.morpion.est_plein():
                 messagebox.showinfo("Fin de partie", "Match nul !")
             else :
                 self.play_computer()
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
-
-
 
 class Application(tk.Frame):
     def __init__(self, master):
