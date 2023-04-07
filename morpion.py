@@ -25,7 +25,6 @@ class Morpion:
             else:
                 df = pd.DataFrame(columns=["joueur", "ligne", "colonne"])
             # Ajouter les coordonnées du coup joué au DataFrame
-            df = df.append({"joueur": joueur, "ligne": ligne, "colonne": colonne}, ignore_index=True)
             # Exporter le DataFrame dans le fichier CSV
             df.to_csv("coups.csv", index=False)
         else:
@@ -77,19 +76,26 @@ class Case(tk.Button):
                 break
         self.morpion.grille[ligne][colonne] = self.morpion.joueur_actuel
         if self.morpion.est_gagne():
+            self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
             messagebox.showinfo("Fin de partie", "Le joueur {} a gagné ! Clique sur replay pour rejouer".format(self.morpion.joueur_actuel))
-        self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
+        elif self.morpion.est_plein():
+            self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
+            messagebox.showinfo("Fin de partie", "Match nul !")
+        else:
+            self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
         
 
     def cliquer(self):
+        self.morpion.joueur_actuel = "X"
         if self.morpion.grille[self.ligne][self.colonne] == " ":
             self.morpion.jouer(self.ligne, self.colonne)
             self.configure(text=self.morpion.grille[self.ligne][self.colonne])
             if self.morpion.est_gagne():
-                messagebox.showinfo("Fin de partie", "Le joueur {} a gagné ! Clique sur replay pour rejouer".format(self.morpion.joueur_actuel))
+                messagebox.showinfo("Fin de partie", "Le joueur x a gagné ! Clique sur replay pour rejouer")
             elif self.morpion.est_plein():
                 messagebox.showinfo("Fin de partie", "Match nul !")
-            self.play_computer()
+            else :
+                self.play_computer()
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
 
