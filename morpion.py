@@ -39,11 +39,12 @@ class Morpion:
             self.tour += 1
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
-        
+
     def fill_possible_coup(self):
         for i in range(3):
             for j in range(3):
-                self.possible_coups = self.possible_coups.append({"ligne": i, "colonne": j, "value": 0}, ignore_index=True)
+                new_row = pd.DataFrame({"ligne": [i], "colonne": [j], "value": [0]})
+                self.possible_coups = pd.concat([self.possible_coups, new_row], ignore_index=True)
         self.possible_coups.to_csv("possible_coups.csv", index=False, sep=';')
 
     def est_gagne(self):
