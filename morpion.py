@@ -9,6 +9,8 @@ class Morpion:
         self.grille = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
         self.coups = []
         self.tour = 0
+        self.possible_coups = pd.DataFrame(columns=["ligne", "colonne"])
+        self.fill_possible_coup()
 
     def jouer(self, ligne, colonne):
         self.joueur_actuel = "X"
@@ -38,7 +40,12 @@ class Morpion:
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
         
-            
+    def fill_possible_coup(self):
+        for i in range(3):
+            for j in range(3):
+                self.possible_coups = self.possible_coups.append({"ligne": i, "colonne": j}, ignore_index=True)
+        self.possible_coups.to_csv("possible_coups.csv", index=False, sep=';')
+
     def est_gagne(self):
         # Vérification des lignes
         for ligne in range(3):
