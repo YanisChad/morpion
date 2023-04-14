@@ -169,6 +169,7 @@ class Case(tk.Button):
             messagebox.showwarning("Erreur", "Case déjà occupée")
 
 
+
 class IA:
     def __init__(self, morpion):
         self.morpion = morpion
@@ -185,30 +186,38 @@ class IA:
         # Vérifier les lignes
         for ligne in grille_copie:
             if ligne.count(joueur) == 2 and " " in ligne:
-                evaluation += 100
+                evaluation += 10
+            elif ligne.count(joueur) == 3:
+                evaluation += 1000
 
         # Vérifier les colonnes
         for i in range(3):
             colonne = [grille_copie[j][i] for j in range(3)]
             if colonne.count(joueur) == 2 and " " in colonne:
-                evaluation += 100
+                evaluation += 10
+            elif colonne.count(joueur) == 3:
+                evaluation += 1000
 
         # Vérifier les diagonales
         diagonale1 = [grille_copie[i][i] for i in range(3)]
         diagonale2 = [grille_copie[i][2 - i] for i in range(3)]
 
         if diagonale1.count(joueur) == 2 and " " in diagonale1:
-            evaluation += 100
+            evaluation += 10
+        elif diagonale1.count(joueur) == 3:
+            evaluation += 1000
         if diagonale2.count(joueur) == 2 and " " in diagonale2:
-            evaluation += 100
+            evaluation += 10
+        elif diagonale2.count(joueur) == 3:
+            evaluation += 1000
 
         # Ajouter des points pour un coup dans un coin ou au centre
         coins = [(0, 2), (0, 0), (2, 0), (2, 2)]
         centre = (1, 1)
         if coup in coins:
-            evaluation += 25
+            evaluation += 5
         elif coup == centre:
-            evaluation += 150
+            evaluation += 10
 
         return evaluation
 
@@ -223,10 +232,10 @@ class IA:
                     score_adversaire = self.evaluer_grille(ligne, colonne, "X" if self.joueur_actuel == "O" else "O")
 
                     # Si l'IA a la possibilité de gagner, elle choisit ce coup
-                    if score_coup >= 100:
+                    if score_coup >= 1000:
                         return (ligne, colonne)
                     # Sinon, si elle peut bloquer le joueur, elle le fait
-                    elif score_adversaire >= 100:
+                    elif score_adversaire >= 1000:
                         meilleur_score = score_adversaire
                         meilleur_coup = (ligne, colonne)
                     # Sinon, elle continue à chercher le meilleur coup
