@@ -161,6 +161,7 @@ class Case(tk.Button):
             else:
                 self.morpion.joueur_actuel = "O"
                 ia = IA(self.morpion)  # Initialisez l'IA ici
+                self.play_computer()
                 for i in range(3):
                     for j in range(3):
                         self.cases[i][j].configure(text=self.morpion.grille[i][j])
@@ -202,12 +203,12 @@ class IA:
             evaluation += 100
 
         # Ajouter des points pour un coup dans un coin ou au centre
-        coins = [(0, 0), (0, 2), (2, 0), (2, 2)]
+        coins = [(0, 2), (0, 0), (2, 0), (2, 2)]
         centre = (1, 1)
         if coup in coins:
             evaluation += 25
         elif coup == centre:
-            evaluation += 50
+            evaluation += 150
 
         return evaluation
 
@@ -272,8 +273,6 @@ class Application(tk.Frame):
         self.replay.pack()
         self.bouton_graphique = tk.Button(self.master, text="Graphique", command=self.visualiser_graphique)
         self.bouton_graphique.pack()
-
-    
 
     def counter_result(self, nom_fichier):
         victoires_x = 0
