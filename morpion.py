@@ -262,6 +262,7 @@ class Application(tk.Frame):
         self.morpion = Morpion()
         self.creer_widgets()
         self.replay.destroy()
+        self.bouton_graphique.destroy()
 
     def creer_widgets(self):
         for ligne in range(3):
@@ -297,15 +298,17 @@ class Application(tk.Frame):
     def visualiser_graphique(self):
         nom_fichier = 'coups.csv'
         victoires_x, victoires_o, egalites = self.counter_result(nom_fichier)
-        x = ['X', 'O', 'Égalités']  # Ajout de 'Égalités' dans la liste x
-        y = [victoires_x, victoires_o, egalites]  # Ajout de egalites dans la liste y
-        colors = ['red', 'blue', 'green']  # Ajout de 'green' dans la liste colors
+        total_victoires = victoires_x + victoires_o + egalites
+        x = ['X', 'O', 'Égalités']
+        y = [victoires_x / total_victoires * 100, victoires_o / total_victoires * 100, egalites / total_victoires * 100]
+        colors = ['red', 'blue', 'green']
 
         plt.bar(x, y, color=colors)
         plt.xlabel("Joueur")
-        plt.ylabel("Nombre de victoires")
-        plt.title("Comparaison des victoires entre X et O")
+        plt.ylabel("Pourcentage de victoires")
+        plt.title("Comparaison des victoires entre X et O (en pourcentage)")
         plt.show()
+
 
 
 
