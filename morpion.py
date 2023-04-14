@@ -39,7 +39,7 @@ class Morpion:
             self.tour += 1
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
-        
+
     def fill_possible_coup(self):
         for i in range(3):
             for j in range(3):
