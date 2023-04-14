@@ -26,16 +26,16 @@ class Morpion:
             if os.path.exists("coups.csv"):
                 df = pd.read_csv("coups.csv", sep=';')
             else :
-                df = pd.DataFrame(columns=["tour", "joueur", "ligne", "colonne"])
+                df = pd.DataFrame(columns=["tour", "joueur", "ligne", "colonne", "is_win"])
             # Charger le fichier CSV existant s'il existe, sinon créer un nouveau DataFrame
-            self.coups.append((self.tour, joueur, ligne, colonne))
-            
-            # Ajouter les coordonnées du coup joué au DataFrame
-            # Exporter le DataFrame dans le fichier CSV
-            df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne"])
-            #concat the two dataframes
-            result_df = pd.concat([df, df_temp])
-            result_df.to_csv("coups.csv", index=False, sep=';')
+            self.coups.append((self.tour, joueur, ligne, colonne, self.est_gagne()))
+            if (self.est_gagne() == True):
+                # Ajouter les coordonnées du coup joué au DataFrame
+                # Exporter le DataFrame dans le fichier CSV
+                df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne", "is_win"])
+                #concat the two dataframes
+                result_df = pd.concat([df, df_temp])
+                result_df.to_csv("coups.csv", index=False, sep=';')
             self.tour += 1
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
@@ -43,7 +43,8 @@ class Morpion:
     def fill_possible_coup(self):
         for i in range(3):
             for j in range(3):
-                self.possible_coups = self.possible_coups.append({"ligne": i, "colonne": j, "value": 0}, ignore_index=True)
+                new_row = pd.DataFrame({"ligne": [i], "colonne": [j], "value": [0]})
+                self.possible_coups = pd.concat([self.possible_coups, new_row], ignore_index=True)
         self.possible_coups.to_csv("possible_coups.csv", index=False, sep=';')
 
     def est_gagne(self):
