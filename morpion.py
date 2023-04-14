@@ -11,6 +11,7 @@ class Morpion:
         self.tour = 0
         self.possible_coups = pd.DataFrame(columns=["ligne", "colonne"])
         self.fill_possible_coup()
+        self.df = pd.DataFrame(columns=["tour", "joueur", "ligne", "colonne", "win_by"])
 
     def jouer(self, ligne, colonne):
         self.joueur_actuel = "X"
@@ -24,21 +25,29 @@ class Morpion:
         if self.grille[ligne][colonne] == " ":
             self.grille[ligne][colonne] = joueur
             if os.path.exists("coups.csv"):
-                df = pd.read_csv("coups.csv", sep=';')
+                self.df = pd.read_csv("coups.csv", sep=';')
             else :
-                df = pd.DataFrame(columns=["tour", "joueur", "ligne", "colonne", "is_win"])
+                self.df = pd.DataFrame(columns=["tour", "joueur", "ligne", "colonne", "win_by"])
             # Charger le fichier CSV existant s'il existe, sinon créer un nouveau DataFrame
-            self.coups.append((self.tour, joueur, ligne, colonne, self.est_gagne()))
+            if self.est_gagne() == False and self.est_plein() == False:
+                self.coups.append((self.tour, joueur, ligne, colonne, "X" if self.est_gagne() else "not_finished"))
             if (self.est_gagne() == True):
-                # Ajouter les coordonnées du coup joué au DataFrame
-                # Exporter le DataFrame dans le fichier CSV
-                df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne", "is_win"])
-                #concat the two dataframes
-                result_df = pd.concat([df, df_temp])
-                result_df.to_csv("coups.csv", index=False, sep=';')
+                self.export_df(ligne, colonne, joueur,"won")
+            # exporter le df dans le cas d'une égalité
+            if (self.tour == 8 and self.est_gagne() == False and self.est_plein() == True):
+                self.coups.append((self.tour, "X", ligne, colonne, "draw"))
+                self.export_df(ligne, colonne, joueur, "draw")
             self.tour += 1
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
+
+    def export_df(self, ligne, colonne, joueur, status):
+        if status != "draw":
+            self.coups.append((self.tour, joueur, ligne, colonne, joueur))
+        df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne", "win_by"])
+        #concat the two dataframes
+        result_df = pd.concat([self.df, df_temp])
+        result_df.to_csv("coups.csv", index=False, sep=';')
 
     def fill_possible_coup(self):
         for i in range(3):
@@ -73,7 +82,6 @@ class Morpion:
                 if self.grille[ligne][colonne] == " ":
                     return False
         return True
-
 class Case(tk.Button):
     def __init__(self, master, ligne, colonne, morpion, cases):
         super().__init__(master, text=" ", font=("Arial", 24), width=7, height=4, command=self.cliquer)
@@ -81,7 +89,6 @@ class Case(tk.Button):
         self.colonne = colonne
         self.morpion = morpion
         self.cases = cases
-            
             
     def play_computer(self):
         self.morpion.joueur_actuel = "O"
@@ -93,13 +100,14 @@ class Case(tk.Button):
         self.morpion.grille[ligne][colonne] = self.morpion.joueur_actuel
         if self.morpion.est_gagne():
             self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
+            self.morpion.export_df(ligne, colonne, "O", "won")
             messagebox.showinfo("Fin de partie", "Le joueur {} a gagné ! Clique sur replay pour rejouer".format(self.morpion.joueur_actuel))
         elif self.morpion.est_plein():
             self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
             messagebox.showinfo("Fin de partie", "Match nul !")
         else:
             self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
-            self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, ligne, colonne))
+            self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, ligne, colonne, "O" if self.morpion.est_gagne() else "not_finished"))
             self.morpion.tour += 1
 
         
