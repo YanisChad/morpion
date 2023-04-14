@@ -95,16 +95,14 @@ class Case(tk.Button):
                 self.cases[i][j].configure(text=self.morpion.grille[i][j])
 
         if self.morpion.est_gagne():
-            messagebox.showinfo("Fin de partie", "Le joueur {} a gagné ! Clique sur replay pour rejouer".format(
-                self.morpion.joueur_actuel))
-            self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
-            self.morpion.export_df(ligne, colonne, "O", "won")
+            self.cases[self.ligne][self.colonne].configure(text=self.morpion.grille[self.ligne][self.colonne])
+            self.morpion.export_df(self.ligne, self.colonne, "O", "won")
             messagebox.showinfo("Fin de partie", "Le joueur {} a gagné ! Clique sur replay pour rejouer".format(self.morpion.joueur_actuel))
         elif self.morpion.est_plein():
             messagebox.showinfo("Fin de partie", "Match nul !")
         else:
-            self.cases[ligne][colonne].configure(text=self.morpion.grille[ligne][colonne])
-            self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, ligne, colonne, "O" if self.morpion.est_gagne() else "not_finished"))
+            self.cases[self.ligne][self.colonne].configure(text=self.morpion.grille[self.ligne][self.colonne])
+            self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, self.ligne, self.colonne, "O" if self.morpion.est_gagne() else "not_finished"))
             self.morpion.tour += 1
 
 
