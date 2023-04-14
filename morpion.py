@@ -3,16 +3,18 @@ from tkinter import messagebox
 import pandas as pd
 import random
 import os
+import matplotlib.pyplot as plt
+import csv
 
 class Morpion:
     def __init__(self):
         self.grille = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
         self.coups = []
         self.tour = 0
-        self.possible_coups = pd.DataFrame(columns=["ligne", "colonne"])
-        self.fill_possible_coup()
+        self.dict = {(0,0):0, (0,1):0, (0,2):0, (1,0):0, (1,1):0, (1,2):0, (2,0):0, (2,1):0, (2,2):0}
 
     def jouer(self, ligne, colonne):
+        print(self.evaluer_coup(ligne, colonne))
         self.joueur_actuel = "X"
         joueur = "X"
 
@@ -69,6 +71,45 @@ class Morpion:
             return True
         
         return False
+    
+    def evaluer_coup(self, ligne, colonne):
+        coup = (ligne, colonne)
+        # Copier la grille pour éviter de la modifier directement
+        grille_copie = [row.copy() for row in self.grille]
+
+        # Appliquer le coup dans la grille
+        grille_copie[coup[0]][coup[1]] = self.joueur_actuel
+
+        # Évaluer le coup pour le joueur donné
+        evaluation = 0
+
+        # Vérifier les lignes
+        for ligne in grille_copie:
+            if ligne.count(self.joueur_actuel) == 3:
+                evaluation += 100
+
+        # Vérifier les colonnes
+        for i in range(3):
+            colonne = [grille_copie[j][i] for j in range(3)]
+            if colonne.count(self.joueur_actuel) == 3:
+                evaluation += 100
+
+        # Vérifier les diagonales
+        diagonale1 = [grille_copie[i][i] for i in range(3)]
+        diagonale2 = [grille_copie[i][2-i] for i in range(3)]
+        if diagonale1.count(self.joueur_actuel) == 3 or diagonale2.count(self.joueur_actuel) == 3:
+            evaluation += 100
+
+        # Ajouter des points pour un coup dans un coin ou au centre
+        coins = [(0, 0), (0, 2), (2, 0), (2, 2)]
+        centre = (1, 1)
+        if coup in coins:
+            evaluation += 25
+        elif coup == centre:
+            evaluation += 50
+
+        return evaluation
+
     
     def est_plein(self):
         for ligne in range(3):
@@ -229,6 +270,44 @@ class Application(tk.Frame):
                 self.cases[ligne][colonne] = case
         self.replay = tk.Button(self.master, text="Rejouer", command=self.rejouer)
         self.replay.pack()
+        self.bouton_graphique = tk.Button(self.master, text="Graphique", command=self.visualiser_graphique)
+        self.bouton_graphique.pack()
+
+    
+
+    def counter_result(self, nom_fichier):
+        victoires_x = 0
+        victoires_o = 0
+        egalites = 0
+
+        with open(nom_fichier, 'r', newline='') as fichier:
+            lecteur_csv = csv.reader(fichier, delimiter=';')
+            next(lecteur_csv)  # Ignorer la première ligne d'en-tête
+
+            for ligne in lecteur_csv:
+                resultat = ligne[4]
+                if resultat == 'X':
+                    victoires_x += 1
+                elif resultat == 'O':
+                    victoires_o += 1
+                elif resultat == 'draw':
+                    egalites += 1
+
+        return victoires_x, victoires_o, egalites
+
+    def visualiser_graphique(self):
+        nom_fichier = 'coups.csv'
+        victoires_x, victoires_o, egalites = self.counter_result(nom_fichier)
+        x = ['X', 'O', 'Égalités']  # Ajout de 'Égalités' dans la liste x
+        y = [victoires_x, victoires_o, egalites]  # Ajout de egalites dans la liste y
+        colors = ['red', 'blue', 'green']  # Ajout de 'green' dans la liste colors
+
+        plt.bar(x, y, color=colors)
+        plt.xlabel("Joueur")
+        plt.ylabel("Nombre de victoires")
+        plt.title("Comparaison des victoires entre X et O")
+        plt.show()
+
 
 
 def main():
