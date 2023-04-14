@@ -120,7 +120,6 @@ class Case(tk.Button):
             else:
                 self.morpion.joueur_actuel = "O"
                 ia = IA(self.morpion)  # Initialisez l'IA ici
-                self.play_computer()
                 for i in range(3):
                     for j in range(3):
                         self.cases[i][j].configure(text=self.morpion.grille[i][j])
