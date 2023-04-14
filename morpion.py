@@ -120,11 +120,14 @@ class Morpion:
 
 class Case(tk.Button):
     def __init__(self, master, ligne, colonne, morpion, cases):
-        super().__init__(master, text=" ", font=("Arial", 24), width=7, height=4, command=self.cliquer)
+        super().__init__(master, text=" ", font=("Arial", 25), width=7, height=4, command=self.cliquer)
         self.ligne = ligne
         self.colonne = colonne
         self.morpion = morpion
         self.cases = cases
+
+        self.x_color = "#FF5722"  # Couleur du X
+        self.o_color = "#2196F3"  # Couleur du O
             
             
     def play_computer(self):
@@ -152,7 +155,7 @@ class Case(tk.Button):
         self.morpion.joueur_actuel = "X"
         if self.morpion.grille[self.ligne][self.colonne] == " ":
             self.morpion.jouer(self.ligne, self.colonne)
-            self.configure(text=self.morpion.grille[self.ligne][self.colonne])
+            self.configure(text=self.morpion.grille[self.ligne][self.colonne], fg=self.x_color)
             if self.morpion.est_gagne():
                 messagebox.showinfo("Fin de partie", "Le joueur x a gagné ! Clique sur replay pour rejouer")
                 print(self.morpion.coups)
@@ -164,7 +167,7 @@ class Case(tk.Button):
                 self.play_computer()
                 for i in range(3):
                     for j in range(3):
-                        self.cases[i][j].configure(text=self.morpion.grille[i][j])
+                        self.cases[i][j].configure(text=self.morpion.grille[i][j], fg=self.o_color)
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
 
@@ -319,8 +322,6 @@ class Application(tk.Frame):
         plt.show()
 
 
-
-
 def main():
     fenetre = tk.Tk()
     fenetre.title("Jeu de morpion")
@@ -328,6 +329,7 @@ def main():
     jeu = Application(fenetre)
     jeu.pack()
     fenetre.mainloop()
+
 
 
 if __name__ == "__main__":
