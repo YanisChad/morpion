@@ -1,4 +1,4 @@
-Le code semble être une implémentation Python du jeu Tic Tac Toe utilisant la bibliothèque tkinter pour créer une interface graphique.
+Ce programme est le jeu du Morpion utilisant la bibliothèque tkinter pour créer une interface graphique.
 
 Le jeu est implémenté dans la classe Morpion, qui contient l'état du jeu, y compris le tour du joueur actuel, l'état du plateau, la liste des coups joués et la progression du jeu. La progression du jeu est stockée dans un DataFrame Pandas et exportée dans un fichier CSV après chaque coup.
 
