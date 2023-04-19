@@ -28,6 +28,7 @@ class Morpion:
             if self.est_gagne() == False and self.est_plein() == False:
                 self.coups.append((self.tour, joueur, ligne, colonne, "X" if self.est_gagne() else "not_finished"))
             if (self.est_gagne() == True):
+                self.coups.append((self.tour, joueur, ligne, colonne, "X"))
                 self.export_df(ligne, colonne, joueur,"won")
             # exporter le df dans le cas d'une égalité
             if (self.tour == 8 and self.est_gagne() == False and self.est_plein() == True):
@@ -37,9 +38,8 @@ class Morpion:
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
 
-    def export_df(self, ligne, colonne, joueur, status):
-        if status != "draw":
-            self.coups.append((self.tour, joueur, ligne, colonne, joueur))
+    def export_df(self, ligne, colonne, joueur, status):        
+
         df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne", "win_by"])
         #concat the two dataframes
         result_df = pd.concat([self.df, df_temp])
@@ -134,7 +134,7 @@ class Case(tk.Button):
         for i in range(3):
             for j in range(3):
                 self.cases[i][j].configure(text=self.morpion.grille[i][j])
-
+        
         if self.morpion.est_gagne():
             self.cases[self.ligne][self.colonne].configure(text=self.morpion.grille[self.ligne][self.colonne])
             self.morpion.export_df(self.ligne, self.colonne, "O", "won")
@@ -143,7 +143,6 @@ class Case(tk.Button):
             messagebox.showinfo("Fin de partie", "Match nul !")
         else:
             self.cases[self.ligne][self.colonne].configure(text=self.morpion.grille[self.ligne][self.colonne])
-            self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, self.ligne, self.colonne, "O" if self.morpion.est_gagne() else "not_finished"))
             self.morpion.tour += 1
 
 
@@ -175,6 +174,7 @@ class IA:
         self.morpion = morpion
         self.grille = morpion.grille
         self.joueur_actuel = morpion.joueur_actuel
+
 
     def evaluer_grille(self, ligne, colonne, joueur):
         coup = (ligne, colonne)
@@ -251,11 +251,14 @@ class IA:
         if meilleur_coup is not None:
             ligne, colonne = meilleur_coup
             self.morpion.grille[ligne][colonne] = self.morpion.joueur_actuel
+            self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, meilleur_coup[0], meilleur_coup[1], "O" if self.morpion.est_gagne() else "not_finished"))
+
         else:
             # Si aucun meilleur coup n'est trouvé, l'IA choisit un coup aléatoire
             ligne, colonne = random.choice(
                 [(i, j) for i in range(3) for j in range(3) if self.morpion.grille[i][j] == " "])
             self.morpion.grille[ligne][colonne] = self.morpion.joueur_actuel
+            self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, ligne, colonne, "O" if self.morpion.est_gagne() else "not_finished"))
 
 
 class Application(tk.Frame):
@@ -327,6 +330,20 @@ def main():
     fenetre.geometry("900x600")
     jeu = Application(fenetre)
     jeu.pack()
+    number_of_colors = 8
+
+    color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+    print(color)
+    fenetre.configure(background=color)
+    image = tk.PhotoImage(file="maxime.png")
+    label = tk.Label(image=image)
+    label.image = image
+    # Positionnement de l'image
+    label.position = (0, 100)
+
+    label.pack()
+
+
     fenetre.mainloop()
 
 
