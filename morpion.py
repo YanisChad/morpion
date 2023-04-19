@@ -38,6 +38,16 @@ class Morpion:
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
 
+    def trouver_partie_similaire(self, new_df, df):
+        for i in range(len(df)):
+            df1_partie = df.iloc[i, 1:] # Extraire une partie de la première dataframe
+            for j in range(len(new_df)):
+                df2_partie = new_df.iloc[j, 1:] # Extraire une partie de la deuxième dataframe
+                if df1_partie.equals(df2_partie): # Comparer les deux parties
+                    return new_df.iloc[j, :] # Retourner la première partie similaire trouvée
+        print("ZEBIIIIIIIiii")
+        return None # Si aucune partie similaire n'a été trouvée, retourner None
+
     def export_df(self, ligne, colonne, joueur, status):        
 
         df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne", "win_by"])
@@ -53,6 +63,8 @@ class Morpion:
         self.possible_coups.to_csv("possible_coups.csv", index=False, sep=';')
 
     def est_gagne(self):
+        df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne", "win_by"])
+        print(self.trouver_partie_similaire(df_temp, self.df))
         # Vérification des lignes
         for ligne in range(3):
             if self.grille[ligne][0] == self.grille[ligne][1] == self.grille[ligne][2] != " ":
@@ -120,14 +132,11 @@ class Morpion:
 
 class Case(tk.Button):
     def __init__(self, master, ligne, colonne, morpion, cases):
-        super().__init__(master, text=" ", font=("Arial", 25), width=7, height=4, command=self.cliquer)
+        super().__init__(master, text=" ", font=("Arial", 24), width=7, height=4, command=self.cliquer)
         self.ligne = ligne
         self.colonne = colonne
         self.morpion = morpion
         self.cases = cases
-
-        self.x_color = "#FF5722"  # Couleur du X
-        self.o_color = "#2196F3"  # Couleur du O
             
             
     def play_computer(self):
@@ -154,7 +163,7 @@ class Case(tk.Button):
         self.morpion.joueur_actuel = "X"
         if self.morpion.grille[self.ligne][self.colonne] == " ":
             self.morpion.jouer(self.ligne, self.colonne)
-            self.configure(text=self.morpion.grille[self.ligne][self.colonne], fg=self.x_color)
+            self.configure(text=self.morpion.grille[self.ligne][self.colonne])
             if self.morpion.est_gagne():
                 messagebox.showinfo("Fin de partie", "Le joueur x a gagné ! Clique sur replay pour rejouer")
                 print(self.morpion.coups)
@@ -166,7 +175,7 @@ class Case(tk.Button):
                 self.play_computer()
                 for i in range(3):
                     for j in range(3):
-                        self.cases[i][j].configure(text=self.morpion.grille[i][j], fg=self.o_color)
+                        self.cases[i][j].configure(text=self.morpion.grille[i][j])
         else:
             messagebox.showwarning("Erreur", "Case déjà occupée")
 
@@ -325,6 +334,8 @@ class Application(tk.Frame):
         plt.show()
 
 
+
+
 def main():
     fenetre = tk.Tk()
     fenetre.title("Jeu de morpion")
@@ -346,7 +357,6 @@ def main():
 
 
     fenetre.mainloop()
-
 
 
 if __name__ == "__main__":
