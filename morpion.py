@@ -13,23 +13,28 @@ class Morpion:
         self.tour = 0
         self.dict = {(0,0):0, (0,1):0, (0,2):0, (1,0):0, (1,1):0, (1,2):0, (2,0):0, (2,1):0, (2,2):0}
 
+    # Méthode pour jouer un coup
     def jouer(self, ligne, colonne):
-        print(self.evaluer_coup(ligne, colonne))
         self.joueur_actuel = "X"
         joueur = "X"
 
         if self.grille[ligne][colonne] == " ":
             self.grille[ligne][colonne] = joueur
+            # Charger le fichier CSV existant s'il existe, sinon créer un nouveau DataFrame
             if os.path.exists("coups.csv"):
                 self.df = pd.read_csv("coups.csv", sep=';')
             else :
                 self.df = pd.DataFrame(columns=["tour", "joueur", "ligne", "colonne", "win_by"])
-            # Charger le fichier CSV existant s'il existe, sinon créer un nouveau DataFrame
+
+            # Ajouter le coup joué au DataFrame et enregistrer le coup
             if self.est_gagne() == False and self.est_plein() == False:
                 self.coups.append((self.tour, joueur, ligne, colonne, "X" if self.est_gagne() else "not_finished"))
+
+            # Si le joueur gagne, ajouter le coup gagnant au DataFrame et enregistrer
             if (self.est_gagne() == True):
                 self.coups.append((self.tour, joueur, ligne, colonne, "X"))
                 self.export_df(ligne, colonne, joueur,"won")
+
             # exporter le df dans le cas d'une égalité
             if (self.tour == 8 and self.est_gagne() == False and self.est_plein() == True):
                 self.coups.append((self.tour, "X", ligne, colonne, "draw"))
@@ -48,13 +53,13 @@ class Morpion:
         print("ZEBIIIIIIIiii")
         return None # Si aucune partie similaire n'a été trouvée, retourner None
 
-    def export_df(self, ligne, colonne, joueur, status):        
-
+    def export_df(self, ligne, colonne, joueur, status):
         df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne", "win_by"])
-        #concat the two dataframes
+        # Concaténer les deux DataFrames
         result_df = pd.concat([self.df, df_temp])
         result_df.to_csv("coups.csv", index=False, sep=';')
 
+    # Remplir le fichier CSV avec les coups possibles
     def fill_possible_coup(self):
         for i in range(3):
             for j in range(3):
@@ -83,46 +88,7 @@ class Morpion:
             return True
         
         return False
-    
-    def evaluer_coup(self, ligne, colonne):
-        coup = (ligne, colonne)
-        # Copier la grille pour éviter de la modifier directement
-        grille_copie = [row.copy() for row in self.grille]
 
-        # Appliquer le coup dans la grille
-        grille_copie[coup[0]][coup[1]] = self.joueur_actuel
-
-        # Évaluer le coup pour le joueur donné
-        evaluation = 0
-
-        # Vérifier les lignes
-        for ligne in grille_copie:
-            if ligne.count(self.joueur_actuel) == 3:
-                evaluation += 100
-
-        # Vérifier les colonnes
-        for i in range(3):
-            colonne = [grille_copie[j][i] for j in range(3)]
-            if colonne.count(self.joueur_actuel) == 3:
-                evaluation += 100
-
-        # Vérifier les diagonales
-        diagonale1 = [grille_copie[i][i] for i in range(3)]
-        diagonale2 = [grille_copie[i][2-i] for i in range(3)]
-        if diagonale1.count(self.joueur_actuel) == 3 or diagonale2.count(self.joueur_actuel) == 3:
-            evaluation += 100
-
-        # Ajouter des points pour un coup dans un coin ou au centre
-        coins = [(0, 0), (0, 2), (2, 0), (2, 2)]
-        centre = (1, 1)
-        if coup in coins:
-            evaluation += 25
-        elif coup == centre:
-            evaluation += 50
-
-        return evaluation
-
-    
     def est_plein(self):
         for ligne in range(3):
             for colonne in range(3):
@@ -137,10 +103,10 @@ class Case(tk.Button):
         self.colonne = colonne
         self.morpion = morpion
         self.cases = cases
-            
-            
+
+    # Faire jouer l'IA
     def play_computer(self):
-        ia = IA(self.morpion)
+        ia = IA(self.morpion) # Initialisez l'IA ici
         ia.jouer()
 
         for i in range(3):
@@ -157,8 +123,7 @@ class Case(tk.Button):
             self.cases[self.ligne][self.colonne].configure(text=self.morpion.grille[self.ligne][self.colonne])
             self.morpion.tour += 1
 
-
-
+    # Méthode appelée lorsqu'un joueur clique sur une case
     def cliquer(self):
         self.morpion.joueur_actuel = "X"
         if self.morpion.grille[self.ligne][self.colonne] == " ":
@@ -182,27 +147,31 @@ class Case(tk.Button):
 
 
 class IA:
+    # Constructeur
     def __init__(self, morpion):
+        # Initialiser les attributs avec les informations du jeu
         self.morpion = morpion
         self.grille = morpion.grille
         self.joueur_actuel = morpion.joueur_actuel
 
-
+    # Méthode pour évaluer un coup hypothétique
     def evaluer_grille(self, ligne, colonne, joueur):
+        # Créer une copie de la grille et jouer le coup
         coup = (ligne, colonne)
         grille_copie = [row.copy() for row in self.grille]
         grille_copie[coup[0]][coup[1]] = joueur
 
+        # Initialiser le score d'évaluation
         evaluation = 0
 
-        # Vérifier les lignes
+        # Vérifier les lignes et attribuer des points en fonction des critères d'évaluation
         for ligne in grille_copie:
             if ligne.count(joueur) == 2 and " " in ligne:
                 evaluation += 10
             elif ligne.count(joueur) == 3:
                 evaluation += 1000
 
-        # Vérifier les colonnes
+        # Vérifier les colonnes et attribuer des points en fonction des critères d'évaluation
         for i in range(3):
             colonne = [grille_copie[j][i] for j in range(3)]
             if colonne.count(joueur) == 2 and " " in colonne:
@@ -210,7 +179,7 @@ class IA:
             elif colonne.count(joueur) == 3:
                 evaluation += 1000
 
-        # Vérifier les diagonales
+        # Vérifier les diagonales et attribuer des points en fonction des critères d'évaluation
         diagonale1 = [grille_copie[i][i] for i in range(3)]
         diagonale2 = [grille_copie[i][2 - i] for i in range(3)]
 
@@ -223,7 +192,7 @@ class IA:
         elif diagonale2.count(joueur) == 3:
             evaluation += 1000
 
-        # Ajouter des points pour un coup dans un coin ou au centre
+        # Attribuer des points pour un coup dans un coin ou au centre
         coins = [(0, 2), (0, 0), (2, 0), (2, 2)]
         centre = (1, 1)
         if coup in coins:
@@ -231,14 +200,18 @@ class IA:
         elif coup == centre:
             evaluation += 10
 
+        # Retourner le score d'évaluation
         return evaluation
 
     def meilleur_coup(self):
+        # Initialiser le meilleur score et le meilleur coup
         meilleur_score = -float("inf")
         meilleur_coup = None
 
+        # Parcourir chaque case de la grille
         for ligne in range(3):
             for colonne in range(3):
+                # Si la case est vide, évaluer le coup
                 if self.morpion.grille[ligne][colonne] == " ":
                     score_coup = self.evaluer_grille(ligne, colonne, self.joueur_actuel)
                     score_adversaire = self.evaluer_grille(ligne, colonne, "X" if self.joueur_actuel == "O" else "O")
@@ -255,11 +228,14 @@ class IA:
                         meilleur_score = score_coup
                         meilleur_coup = (ligne, colonne)
 
+        # Retourner le meilleur coup trouvé
         return meilleur_coup
 
     def jouer(self):
+        # Trouver le meilleur coup
         meilleur_coup = self.meilleur_coup()
 
+        # Si un meilleur coup est trouvé
         if meilleur_coup is not None:
             ligne, colonne = meilleur_coup
             self.morpion.grille[ligne][colonne] = self.morpion.joueur_actuel
@@ -274,6 +250,7 @@ class IA:
 
 
 class Application(tk.Frame):
+    # Constructeur
     def __init__(self, master):
         super().__init__(master)
         self.master = master
@@ -282,12 +259,14 @@ class Application(tk.Frame):
         self.replay = [None]
         self.creer_widgets()
 
+    # Méthode pour réinitialiser le jeu
     def rejouer(self):
         self.morpion = Morpion()
         self.creer_widgets()
         self.replay.destroy()
         self.bouton_graphique.destroy()
 
+    # Méthode pour créer les widgets (cases et boutons)
     def creer_widgets(self):
         for ligne in range(3):
             for colonne in range(3):
@@ -299,6 +278,7 @@ class Application(tk.Frame):
         self.bouton_graphique = tk.Button(self.master, text="Graphique", command=self.visualiser_graphique)
         self.bouton_graphique.pack()
 
+    # Méthode pour compter les résultats à partir d'un fichier
     def counter_result(self, nom_fichier):
         victoires_x = 0
         victoires_o = 0
@@ -319,6 +299,7 @@ class Application(tk.Frame):
 
         return victoires_x, victoires_o, egalites
 
+    # Méthode pour afficher un graphique des résultats
     def visualiser_graphique(self):
         nom_fichier = 'coups.csv'
         victoires_x, victoires_o, egalites = self.counter_result(nom_fichier)
@@ -333,9 +314,7 @@ class Application(tk.Frame):
         plt.title("Comparaison des victoires entre X et O (en pourcentage)")
         plt.show()
 
-
-
-
+# Fonction principale pour lancer l'application
 def main():
     fenetre = tk.Tk()
     fenetre.title("Jeu de morpion")
