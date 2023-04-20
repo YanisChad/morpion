@@ -122,6 +122,11 @@ class Case(tk.Button):
                     for i in range(3):
                         for j in range(3):
                             self.cases[i][j].configure(text=self.morpion.grille[i][j])
+                    if self.morpion.est_gagne():
+                        messagebox.showinfo("Fin de partie", "Le joueur O a gagné ! Clique sur replay pour rejouer")
+                        # print(self.morpion.coups)
+                    elif self.morpion.est_plein():
+                        messagebox.showinfo("Fin de partie", "Match nul ! Clique sur replay pour rejouer")
             else:
                 messagebox.showwarning("Erreur", "Case déjà occupée")
 
@@ -229,11 +234,7 @@ class IA:
             self.morpion.grille[ligne][colonne] = self.morpion.joueur_actuel
             self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, ligne, colonne, "O" if self.morpion.est_gagne() else "not_finished"))
 
-        if self.morpion.est_gagne():
-            messagebox.showinfo("Fin de partie", "Le joueur O a gagné ! Clique sur replay pour rejouer")
-            # print(self.morpion.coups)
-        elif self.morpion.est_plein():
-            messagebox.showinfo("Fin de partie", "Match nul ! Clique sur replay pour rejouer")
+
 
 class Application(tk.Frame):
     # Constructeur
