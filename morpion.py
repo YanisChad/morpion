@@ -326,14 +326,6 @@ def main():
     color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
     print(color)
     fenetre.configure(background=color)
-    image = tk.PhotoImage(file="maxime.png")
-    label = tk.Label(image=image)
-    label.image = image
-    # Positionnement de l'image
-    label.position = (0, 100)
-
-    label.pack()
-
 
     fenetre.mainloop()
 

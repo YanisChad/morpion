@@ -14,4 +14,4 @@ La méthode visualiser_graphique() utilise les données obtenues par la méthode
 
 Le code gère également le cas où l'utilisateur clique sur le bouton replay, ce qui réinitialise l'état du jeu et recrée le plateau de jeu.
 
-Traduit avec www.DeepL.com/Translator (version gratuite)
+ 
