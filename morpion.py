@@ -12,6 +12,11 @@ class Morpion:
         self.coups = []
         self.tour = 0
         self.dict = {(0,0):0, (0,1):0, (0,2):0, (1,0):0, (1,1):0, (1,2):0, (2,0):0, (2,1):0, (2,2):0}
+        # Charger le fichier CSV existant s'il existe, sinon créer un nouveau DataFrame
+        if os.path.exists("coups.csv"):
+            self.df = pd.read_csv("coups.csv", sep=';')
+        else :
+            self.df = pd.DataFrame(columns=["tour", "joueur", "ligne", "colonne", "win_by"])
 
     # Méthode pour jouer un coup
     def jouer(self, ligne, colonne):
@@ -50,7 +55,6 @@ class Morpion:
                 df2_partie = new_df.iloc[j, 1:] # Extraire une partie de la deuxième dataframe
                 if df1_partie.equals(df2_partie): # Comparer les deux parties
                     return new_df.iloc[j, :] # Retourner la première partie similaire trouvée
-        print("ZEBIIIIIIIiii")
         return None # Si aucune partie similaire n'a été trouvée, retourner None
 
     def export_df(self, ligne, colonne, joueur, status):
@@ -60,16 +64,10 @@ class Morpion:
         result_df.to_csv("coups.csv", index=False, sep=';')
 
     # Remplir le fichier CSV avec les coups possibles
-    def fill_possible_coup(self):
-        for i in range(3):
-            for j in range(3):
-                new_row = pd.DataFrame({"ligne": [i], "colonne": [j], "value": [0]})
-                self.possible_coups = pd.concat([self.possible_coups, new_row], ignore_index=True)
-        self.possible_coups.to_csv("possible_coups.csv", index=False, sep=';')
 
     def est_gagne(self):
         df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne", "win_by"])
-        print(self.trouver_partie_similaire(df_temp, self.df))
+        # print(self.trouver_partie_similaire(df_temp, self.df))
         # Vérification des lignes
         for ligne in range(3):
             if self.grille[ligne][0] == self.grille[ligne][1] == self.grille[ligne][2] != " ":
@@ -79,7 +77,7 @@ class Morpion:
         for colonne in range(3):
             if self.grille[0][colonne] == self.grille[1][colonne] == self.grille[2][colonne] != " ":
                 return True
-        print(self.grille)
+        # print(self.grille)
 
         # Vérification des diagonales
         if self.grille[0][0] == self.grille[1][1] == self.grille[2][2] != " ":
@@ -99,50 +97,38 @@ class Morpion:
 class Case(tk.Button):
     def __init__(self, master, ligne, colonne, morpion, cases):
         super().__init__(master, text=" ", font=("Arial", 24), width=7, height=4, command=self.cliquer)
-        self.ligne = ligne
-        self.colonne = colonne
+        self.parent = master
+        self.x = ligne
+        self.y = colonne
         self.morpion = morpion
         self.cases = cases
 
-    # Faire jouer l'IA
-    def play_computer(self):
-        ia = IA(self.morpion) # Initialisez l'IA ici
-        ia.jouer()
-
-        for i in range(3):
-            for j in range(3):
-                self.cases[i][j].configure(text=self.morpion.grille[i][j])
-        
-        if self.morpion.est_gagne():
-            self.cases[self.ligne][self.colonne].configure(text=self.morpion.grille[self.ligne][self.colonne])
-            self.morpion.export_df(self.ligne, self.colonne, "O", "won")
-            messagebox.showinfo("Fin de partie", "Le joueur {} a gagné ! Clique sur replay pour rejouer".format(self.morpion.joueur_actuel))
-        elif self.morpion.est_plein():
-            messagebox.showinfo("Fin de partie", "Match nul !")
-        else:
-            self.cases[self.ligne][self.colonne].configure(text=self.morpion.grille[self.ligne][self.colonne])
-            self.morpion.tour += 1
-
     # Méthode appelée lorsqu'un joueur clique sur une case
     def cliquer(self):
-        self.morpion.joueur_actuel = "X"
-        if self.morpion.grille[self.ligne][self.colonne] == " ":
-            self.morpion.jouer(self.ligne, self.colonne)
-            self.configure(text=self.morpion.grille[self.ligne][self.colonne])
-            if self.morpion.est_gagne():
-                messagebox.showinfo("Fin de partie", "Le joueur x a gagné ! Clique sur replay pour rejouer")
-                print(self.morpion.coups)
-            elif self.morpion.est_plein():
-                messagebox.showinfo("Fin de partie", "Match nul !")
+        if not (self.morpion.est_gagne() or self.morpion.est_plein()):
+            self.morpion.joueur_actuel = "X"
+            if self.morpion.grille[self.x][self.y] == " ":
+                self.morpion.jouer(self.x, self.y)
+                self.configure(text=self.morpion.grille[self.x][self.y])
+                if self.morpion.est_gagne():
+                    messagebox.showinfo("Fin de partie", "Le joueur x a gagné ! Clique sur replay pour rejouer")
+                    # print(self.morpion.coups)
+                elif self.morpion.est_plein():
+                    messagebox.showinfo("Fin de partie", "Match nul !")
+                else:
+                    self.morpion.joueur_actuel = "O"
+                    ia = IA(self.morpion)  # Initialisez l'IA ici
+                    ia.jouer()
+                    for i in range(3):
+                        for j in range(3):
+                            self.cases[i][j].configure(text=self.morpion.grille[i][j])
+                    if self.morpion.est_gagne():
+                        messagebox.showinfo("Fin de partie", "Le joueur O a gagné ! Clique sur replay pour rejouer")
+                        # print(self.morpion.coups)
+                    elif self.morpion.est_plein():
+                        messagebox.showinfo("Fin de partie", "Match nul ! Clique sur replay pour rejouer")
             else:
-                self.morpion.joueur_actuel = "O"
-                ia = IA(self.morpion)  # Initialisez l'IA ici
-                self.play_computer()
-                for i in range(3):
-                    for j in range(3):
-                        self.cases[i][j].configure(text=self.morpion.grille[i][j])
-        else:
-            messagebox.showwarning("Erreur", "Case déjà occupée")
+                messagebox.showwarning("Erreur", "Case déjà occupée")
 
 
 
@@ -239,7 +225,7 @@ class IA:
         if meilleur_coup is not None:
             ligne, colonne = meilleur_coup
             self.morpion.grille[ligne][colonne] = self.morpion.joueur_actuel
-            self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, meilleur_coup[0], meilleur_coup[1], "O" if self.morpion.est_gagne() else "not_finished"))
+            self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, meilleur_coup[0], meilleur_coup[1],"O" if self.morpion.est_gagne() else "not_finished"))
 
         else:
             # Si aucun meilleur coup n'est trouvé, l'IA choisit un coup aléatoire
@@ -247,6 +233,7 @@ class IA:
                 [(i, j) for i in range(3) for j in range(3) if self.morpion.grille[i][j] == " "])
             self.morpion.grille[ligne][colonne] = self.morpion.joueur_actuel
             self.morpion.coups.append((self.morpion.tour, self.morpion.joueur_actuel, ligne, colonne, "O" if self.morpion.est_gagne() else "not_finished"))
+
 
 
 class Application(tk.Frame):
@@ -326,7 +313,6 @@ def main():
     color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
     print(color)
     fenetre.configure(background=color)
-
     fenetre.mainloop()
 
 
