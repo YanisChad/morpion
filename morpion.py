@@ -55,7 +55,6 @@ class Morpion:
                 df2_partie = new_df.iloc[j, 1:] # Extraire une partie de la deuxième dataframe
                 if df1_partie.equals(df2_partie): # Comparer les deux parties
                     return new_df.iloc[j, :] # Retourner la première partie similaire trouvée
-        print("ZEBIIIIIIIiii")
         return None # Si aucune partie similaire n'a été trouvée, retourner None
 
     def export_df(self, ligne, colonne, joueur, status):
@@ -68,7 +67,7 @@ class Morpion:
 
     def est_gagne(self):
         df_temp = pd.DataFrame(self.coups, columns=["tour", "joueur", "ligne", "colonne", "win_by"])
-        print(self.trouver_partie_similaire(df_temp, self.df))
+        # print(self.trouver_partie_similaire(df_temp, self.df))
         # Vérification des lignes
         for ligne in range(3):
             if self.grille[ligne][0] == self.grille[ligne][1] == self.grille[ligne][2] != " ":
@@ -78,7 +77,7 @@ class Morpion:
         for colonne in range(3):
             if self.grille[0][colonne] == self.grille[1][colonne] == self.grille[2][colonne] != " ":
                 return True
-        print(self.grille)
+        # print(self.grille)
 
         # Vérification des diagonales
         if self.grille[0][0] == self.grille[1][1] == self.grille[2][2] != " ":
@@ -113,7 +112,7 @@ class Case(tk.Button):
                 self.configure(text=self.morpion.grille[self.x][self.y])
                 if self.morpion.est_gagne():
                     messagebox.showinfo("Fin de partie", "Le joueur x a gagné ! Clique sur replay pour rejouer")
-                    print(self.morpion.coups)
+                    # print(self.morpion.coups)
                 elif self.morpion.est_plein():
                     messagebox.showinfo("Fin de partie", "Match nul !")
                 else:
@@ -232,7 +231,7 @@ class IA:
 
         if self.morpion.est_gagne():
             messagebox.showinfo("Fin de partie", "Le joueur O a gagné ! Clique sur replay pour rejouer")
-            print(self.morpion.coups)
+            # print(self.morpion.coups)
         elif self.morpion.est_plein():
             messagebox.showinfo("Fin de partie", "Match nul ! Clique sur replay pour rejouer")
 
